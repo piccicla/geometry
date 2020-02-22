@@ -116,6 +116,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="matrices.h" />
     <ClInclude Include="vectors.h" />
   </ItemGroup>
   <ItemGroup>

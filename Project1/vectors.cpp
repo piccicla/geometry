@@ -132,3 +132,37 @@ float Angle(const vec3& l, const vec3& r)
 	float m = sqrtf(MagnitudeSq(l) * MagnitudeSq(r));
 	return acos(Dot(l, r) / m);
 }
+
+// decompose a vector A (lenght) into parallel and perpendicolar with respect to another vector (direction)
+vec2 Project(const vec2& length, const vec2& direction)
+{
+	float dot = Dot(length, direction);
+	float magSq = MagnitudeSq(direction);
+	return direction * (dot / magSq);
+}
+vec3 Project(const vec3& length, const vec3& direction)
+{
+	float dot = Dot(length, direction);
+	float magSq = MagnitudeSq(direction);
+	return direction * (dot / magSq);
+}
+vec2 Perpendicular(const vec2& len, const vec2& dir)
+{
+	return len - Project(len, dir);
+}
+vec3 Perpendicular(const vec3& len, const vec3& dir)
+{
+	return len - Project(len, dir);
+}
+
+//vector reflection
+vec2 Reflection(const vec2& vec, const vec2& normal)
+{
+	float d = Dot(vec, normal);
+	return vec - normal * (d * 2.0f);
+}
+vec3 Reflection(const vec3& vec, const vec3& normal)
+{
+	float d = Dot(vec, normal);
+	return vec - normal * (d * 2.0f);
+}

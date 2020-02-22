@@ -23,7 +23,6 @@ typedef struct vec2 {
 			float y;
 		};
 		float asArray[2];
-
 	};
 
 	float& operator[](int i)
@@ -47,7 +46,6 @@ typedef struct vec3 {
 			float z;
 		};
 		float asArray[3];
-
 	};
 
 	float& operator[](int i)
@@ -60,7 +58,7 @@ typedef struct vec3 {
 
 } vec3;
 
-
+//sum/subtraction/multiplication/equality
 vec2 operator+(const vec2& l, const vec2& r);
 vec3 operator+(const vec3& l, const vec3& r);
 vec2 operator-(const vec2& l, const vec2& r);
@@ -102,6 +100,14 @@ vec3 Cross(const vec3& l, const vec3& r);
 float Angle(const vec2& l, const vec2& r);
 float Angle(const vec3& l, const vec3& r);
 
+// decompose a vector A (lenght) into parallel and perpendicolar with respect to another vector (direction)
+vec2 Project(const vec2& length, const vec2& direction);
+vec3 Project(const vec3& length, const vec3& direction);
+vec2 Perpendicular(const vec2& len, const vec2& dir);
+vec3 Perpendicular(const vec3& len, const vec3& dir);
 
+//vector reflection 
+vec2 Reflection(const vec2& vec, const vec2& normal);
+vec3 Reflection(const vec3& vec, const vec3& normal);
 #endif
 
