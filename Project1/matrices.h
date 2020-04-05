@@ -102,7 +102,10 @@ typedef struct mat4
 	}
 } mat4;
 
+//determinants
 float Determinant(const mat2& matrix);
+float Determinant(const mat3& matrix);
+float Determinant(const mat4& matrix);
 
 //transpose matrices
 void Transpose(const float *srcMat, float *dstMat, int srcRows, int srcCols);
@@ -124,14 +127,27 @@ mat4 operator*(const mat4& matA, const mat4& matB);
 
 //minor
 mat2 Cut(const mat3& mat, int row, int col); //will delete row and col from mat3
+mat3 Cut(const mat4& mat, int row, int col);
 mat2 Minor(const mat2& mat);
 mat3 Minor(const mat3& mat);
-
+mat4 Minor(const mat4& mat);
 
 //cofactor
 void Cofactor(float* out, const float* minor, int rows, int cols);
 mat3 Cofactor(const mat3& mat);
 mat2 Cofactor(const mat2& mat);
+mat4 Cofactor(const mat4& mat);
+
+//Adjugate 
+mat2 Adjugate(const mat2& mat);
+mat3 Adjugate(const mat3& mat);
+mat4 Adjugate(const mat4& mat);
+
+//inverse
+mat2 Inverse(const mat2& mat);
+mat3 Inverse(const mat3& mat);
+mat4 Inverse(const mat4& mat);
+
 
 
 #endif

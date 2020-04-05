@@ -105,6 +105,27 @@ float Determinant(const mat2& matrix)
 	return (matrix._11 * matrix._22) - (matrix._12 * matrix._21);
 }
 
+float Determinant(const mat3& matrix)
+{
+	float result = 0.0f;
+	mat3 cofactor = Cofactor(matrix);
+	for (int j = 0; j < 3; ++j) {
+		int index = 3 * 0 + j;
+		result += matrix.asArray[index] * cofactor[0][j];
+	}
+	return result;
+}
+
+float Determinant(const mat4& mat)
+{
+	float result = 0.0f;
+	mat4 cofactor = Cofactor(mat);
+	for (int j = 0; j < 4; ++j) {
+		result += mat.asArray[4 * 0 + j] * cofactor[0][j];
+	}
+	return result;
+}
+
 //minor
 mat2 Cut(const mat3& mat, int row, int col)
 {
@@ -118,6 +139,33 @@ mat2 Cut(const mat3& mat, int row, int col)
 			int target = index++;
 			int source = 3 * i + j;
 			result.asArray[target] = mat.asArray[source];
+		}
+	}
+	return result;
+}
+mat3 Cut(const mat4& mat, int row, int col)
+{
+	mat3 result;
+	int index = 0;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			if (i == row || j == col) {
+				continue;
+			}
+			int target = index++;
+			int source = 4 * i + j;
+			result.asArray[target] = mat.asArray[source];
+		}
+	}
+	return result;
+}
+
+mat4 Minor(const mat4& mat)
+{
+	mat4 result;
+	for (int i = 0; i <4; ++i) {
+		for (int j = 0; j <4; ++j) {
+			result[i][j] = Determinant(Cut(mat, i, j));
 		}
 	}
 	return result;
@@ -156,6 +204,13 @@ void Cofactor(float* out, const float* minor,
 	}
 }
 
+mat4 Cofactor(const mat4& mat)
+{
+	mat4 result;
+	Cofactor(result.asArray, Minor(mat).asArray, 4, 4);
+	return result;
+}
+
 mat2 Cofactor(const mat2& mat)
 {
 	mat2 result;
@@ -168,4 +223,103 @@ mat3 Cofactor(const mat3& mat)
 	Cofactor(result.asArray, Minor(mat).asArray, 3, 3);
 	return result;
 }
+
+//Adjugate
+mat2 Adjugate(const mat2& mat)
+{
+	return Transpose(Cofactor(mat));
+}
+mat3 Adjugate(const mat3& mat)
+{
+	return Transpose(Cofactor(mat));
+}
+mat4 Adjugate(const mat4& mat)
+{
+	return Transpose(Cofactor(mat));
+}
+
+//inverse
+/*mat2 Inverse(const mat2& mat)
+{
+	float det = Determinant(mat);
+	if (CMP(det, 0.0f)) { return mat2(); }
+	return Adjugate(mat) * (1.0f / det);
+}*/
+
+// The code below is the expanded form of the above method.
+// This optimization avoids loops and function calls
+mat2 Inverse(const mat2& mat) //here we expanded the loops
+{
+	float det = mat._11 * mat._22 - mat._12 * mat._21;
+	if (CMP(det, 0.0f)) {
+		return mat2();
+	}
+	mat2 result;
+	float i_det = 1.0f / det; //To avoid excessive division
+	result._11 = mat._22 * i_det;//Do reciprocal multiplication
+	result._12 = -mat._12 * i_det;
+	result._21 = -mat._21 * i_det;
+	result._22 = mat._11 * i_det;
+	return result;
+}
+
+mat3 Inverse(const mat3& mat)
+{
+	float det = Determinant(mat);
+	if (CMP(det, 0.0f)) { return mat3(); }
+	return Adjugate(mat) * (1.0f / det);
+}
+
+/*mat4 Inverse(const mat4& mat)
+{
+	float det = Determinant(mat);
+	if (CMP(det, 0.0f)) { return mat4(); }
+	return Adjugate(mat) * (1.0f / det);
+}*/
+
+// The code below is the expanded form of the above method.
+// This optimization avoids loops and function calls
+mat4 Inverse(const mat4& m)
+{
+	/*float det = Determinant(m);
+	if (CMP(det, 0.0f)) { return mat4(); }
+	return Adjugate(m) * (1.0f / det);*/
+	
+	float det
+		= m._11 * m._22 * m._33 * m._44 + m._11 * m._23 * m._34 * m._42 + m._11 * m._24 * m._32 * m._43
+		+ m._12 * m._21 * m._34 * m._43 + m._12 * m._23 * m._31 * m._44 + m._12 * m._24 * m._33 * m._41
+		+ m._13 * m._21 * m._32 * m._44 + m._13 * m._22 * m._34 * m._41 + m._13 * m._24 * m._31 * m._42
+		+ m._14 * m._21 * m._33 * m._42 + m._14 * m._22 * m._31 * m._43 + m._14 * m._23 * m._32 * m._41
+		- m._11 * m._22 * m._34 * m._43 - m._11 * m._23 * m._32 * m._44 - m._11 * m._24 * m._33 * m._42
+		- m._12 * m._21 * m._33 * m._44 - m._12 * m._23 * m._34 * m._41 - m._12 * m._24 * m._31 * m._43
+		- m._13 * m._21 * m._34 * m._42 - m._13 * m._22 * m._31 * m._44 - m._13 * m._24 * m._32 * m._41
+		- m._14 * m._21 * m._32 * m._43 - m._14 * m._22 * m._33 * m._41 - m._14 * m._23 * m._31 * m._42;
+
+	if (CMP(det, 0.0f)) {
+		return mat4();
+	}
+	float i_det = 1.0f / det;
+
+	mat4 result;
+	result._11 = (m._22 * m._33 * m._44 + m._23 * m._34 * m._42 + m._24 * m._32 * m._43 - m._22 * m._34 * m._43 - m._23 * m._32 * m._44 - m._24 * m._33 * m._42) * i_det;
+	result._12 = (m._12 * m._34 * m._43 + m._13 * m._32 * m._44 + m._14 * m._33 * m._42 - m._12 * m._33 * m._44 - m._13 * m._34 * m._42 - m._14 * m._32 * m._43) * i_det;
+	result._13 = (m._12 * m._23 * m._44 + m._13 * m._24 * m._42 + m._14 * m._22 * m._43 - m._12 * m._24 * m._43 - m._13 * m._22 * m._44 - m._14 * m._23 * m._42) * i_det;
+	result._14 = (m._12 * m._24 * m._33 + m._13 * m._22 * m._34 + m._14 * m._23 * m._32 - m._12 * m._23 * m._34 - m._13 * m._24 * m._32 - m._14 * m._22 * m._33) * i_det;
+	result._21 = (m._21 * m._34 * m._43 + m._23 * m._31 * m._44 + m._24 * m._33 * m._41 - m._21 * m._33 * m._44 - m._23 * m._34 * m._41 - m._24 * m._31 * m._43) * i_det;
+	result._22 = (m._11 * m._33 * m._44 + m._13 * m._34 * m._41 + m._14 * m._31 * m._43 - m._11 * m._34 * m._43 - m._13 * m._31 * m._44 - m._14 * m._33 * m._41) * i_det;
+	result._23 = (m._11 * m._24 * m._43 + m._13 * m._21 * m._44 + m._14 * m._23 * m._41 - m._11 * m._23 * m._44 - m._13 * m._24 * m._41 - m._14 * m._21 * m._43) * i_det;
+	result._24 = (m._11 * m._23 * m._34 + m._13 * m._24 * m._31 + m._14 * m._21 * m._33 - m._11 * m._24 * m._33 - m._13 * m._21 * m._34 - m._14 * m._23 * m._31) * i_det;
+	result._31 = (m._21 * m._32 * m._44 + m._22 * m._34 * m._41 + m._24 * m._31 * m._42 - m._21 * m._34 * m._42 - m._22 * m._31 * m._44 - m._24 * m._32 * m._41) * i_det;
+	result._32 = (m._11 * m._34 * m._42 + m._12 * m._31 * m._44 + m._14 * m._32 * m._41 - m._11 * m._32 * m._44 - m._12 * m._34 * m._41 - m._14 * m._31 * m._42) * i_det;
+	result._33 = (m._11 * m._22 * m._44 + m._12 * m._24 * m._41 + m._14 * m._21 * m._42 - m._11 * m._24 * m._42 - m._12 * m._21 * m._44 - m._14 * m._22 * m._41) * i_det;
+	result._34 = (m._11 * m._24 * m._32 + m._12 * m._21 * m._34 + m._14 * m._22 * m._31 - m._11 * m._22 * m._34 - m._12 * m._24 * m._31 - m._14 * m._21 * m._32) * i_det;
+	result._41 = (m._21 * m._33 * m._42 + m._22 * m._31 * m._43 + m._23 * m._32 * m._41 - m._21 * m._32 * m._43 - m._22 * m._33 * m._41 - m._23 * m._31 * m._42) * i_det;
+	result._42 = (m._11 * m._32 * m._43 + m._12 * m._33 * m._41 + m._13 * m._31 * m._42 - m._11 * m._33 * m._42 - m._12 * m._31 * m._43 - m._13 * m._32 * m._41) * i_det;
+	result._43 = (m._11 * m._23 * m._42 + m._12 * m._21 * m._43 + m._13 * m._22 * m._41 - m._11 * m._22 * m._43 - m._12 * m._23 * m._41 - m._13 * m._21 * m._42) * i_det;
+	result._44 = (m._11 * m._22 * m._33 + m._12 * m._23 * m._31 + m._13 * m._21 * m._32 - m._11 * m._23 * m._32 - m._12 * m._21 * m._33 - m._13 * m._22 * m._31) * i_det;
+
+	return result;
+}
+
+
 
