@@ -322,4 +322,68 @@ mat4 Inverse(const mat4& m)
 }
 
 
+////////MATRIX TRANSFORMATIONS
 
+//translation
+mat4 Translation(float x, float y, float z)
+{
+	return mat4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		x, y, z, 1.0f
+	);
+}
+mat4 Translation(const vec3& pos)
+{
+	return mat4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		pos.x, pos.y, pos.z, 1.0f
+	);
+}
+
+vec3 GetTranslation(const mat4& mat)
+{
+	return vec3(mat._41, mat._42, mat._43);
+}
+
+//scale
+mat4 Scale(float x, float y, float z)
+{
+	return mat4(
+		x, 0.0f, 0.0f, 0.0f,
+		0.0f, y, 0.0f, 0.0f,
+		0.0f, 0.0f, z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+}
+mat4 Scale(const vec3&vec)
+{
+	return mat4(
+		vec.x, 0.0f, 0.0f, 0.0f,
+		0.0f, vec.y, 0.0f, 0.0f,
+		0.0f, 0.0f, vec.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+}
+
+vec3 GetScale(const mat4& mat)
+{
+	return vec3(mat._11, mat._22, mat._33);
+}
+
+//rotation
+mat4 Rotation(float pitch, float yaw, float roll)
+{
+	return ZRotation(roll) *
+		XRotation(pitch) *
+		YRotation(yaw);
+}
+mat3 Rotation3x3(float pitch, float yaw, float roll)
+{
+	return ZRotation3x3(yaw) *
+		XRotation3x3(pitch) *
+		YRotation3x3(yaw);
+}
